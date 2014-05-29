@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+	<input name="userName"/>
+	<view-state id="listEmployees">
+		<transition to="createEmployee" on="create"></transition>
+		<transition to="searchEmployee" on="search"></transition>
+		<transition to="end-state" on="cancel"></transition>
+	</view-state>
+	
+	<view-state id="createEmployee">
+		<transition to="viewEmployee" on="save">
+			<set name="userName" value="requestParameters.userName"></set>
+			<evaluate expression="employeeService.createEmployee(userName, requestParameters.firstName, requestParameters.lastName, requestParameters.birthDate, requestParameters.gender, requestParameters.hireDate, requestParameters.position, requestParameters.active)"></evaluate>
+		</transition>
+		<transition to="listEmployees" on="cancel"></transition>
+	</view-state>
+
+	<view-state id="viewEmployee">
+		<on-render>
+			<evaluate expression="employeeService.getEmployee(userName)" result="flowScope.employee"></evaluate>
+		</on-render>
+		<transition to="editEmployee" on="edit"></transition>
+		<transition to="deleteEmployee" on="delete"></transition>
+		<transition to="listEmployees" on="cancel"></transition>
+	</view-state>
+	<view-state id="editEmployee">
+		<transition to="viewEmployee" on="update">
+			<set name="userName" value="requestParameters.userName"></set>
+			<evaluate expression="employeeService.updateEmployee(userName, requestParameters.firstName, requestParameters.lastName, requestParameters.birthDate, requestParameters.gender, requestParameters.hireDate, requestParameters.position, requestParameters.active)"></evaluate>
+		</transition>
+		<transition to="listEmployees" on="cancel"></transition>
+	</view-state>
+	<view-state id="deleteEmployee">
+		<transition to="listEmployees" on="delete">
+			<set name="userName" value="flowScope.employee.userName"></set>
+			<evaluate expression="employeeService.deleteEmployee(userName)"></evaluate>
+		</transition>
+		<transition to="listEmployees" on="cancel"></transition>
+	</view-state>
+	<view-state id="searchEmployee">
+		<transition to="viewEmployee" on="search">
+			<set name="userName" value="requestParameters.userName"></set>
+		</transition>
+		<transition to="listEmployees" on="cancel"></transition>
+	</view-state>
+	<end-state id="end-state"></end-state>
+	
+</flow>
